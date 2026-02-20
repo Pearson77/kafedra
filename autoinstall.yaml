@@ -1,0 +1,107 @@
+autoinstall:
+  version: 1
+
+  locale: ru_RU.UTF-8
+
+  keyboard:
+    layout: "us,ru"
+    toggle: "grp:alt_shift_toggle"
+
+  timezone: Europe/Moscow
+
+  identity:
+    hostname: ubuntu
+    username: student
+    password: ""
+
+  storage:
+    layout:
+      name: direct
+
+  package_update: true
+  package_upgrade: true
+
+  packages:
+    - snapd
+    - ca-certificates
+    - curl
+    - zip
+    - unzip
+    - git
+    - nodejs
+    - npm
+    - python3-pip
+    - qt6-base-dev
+    - qt6-tools-dev
+    - qt6-tools-dev-tools
+    - qtcreator
+    - cmake
+    - postgresql
+    - postgresql-contrib
+    - gpg
+    - wget
+    - lsb-release
+
+  snaps:
+    - name: code
+      classic: true
+    - name: pycharm-community
+      classic: true
+    - name: intellij-idea-community
+      classic: true
+    - name: rider
+      classic: true
+    - name: webstorm
+      classic: true
+    - name: dbeaver-ce
+      classic: true
+    - name: postman
+    - name: onlyoffice-desktopeditors
+
+  late-commands:
+    - curtin in-target --target=/target -- install -m 0755 -d /etc/apt/keyrings
+
+    - curtin in-target --target=/target -- bash -c 'set -e;
+        cd /tmp;
+        wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb;
+        dpkg -i packages-microsoft-prod.deb;
+        apt update;
+        apt install -y dotnet-sdk-10.0 aspnetcore-runtime-10.0 dotnet-runtime-10.0'
+
+    - curtin in-target --target=/target -- bash -c 'set -e;
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc;
+        chmod a+r /etc/apt/keyrings/docker.asc;
+        cat > /etc/apt/sources.list.d/docker.sources <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+Components: stable
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+        apt update;
+        apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin;
+        usermod -aG docker student'
+
+    - curtin in-target --target=/target -- bash -c 'set -e;
+        curl -fsSL https://hub.unity3d.com/linux/keys/public | gpg --dearmor -o /etc/apt/keyrings/unityhub.gpg;
+        echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/unityhub.gpg] https://hub.unity3d.com/linux/repos/deb stable main" > /etc/apt/sources.list.d/unityhub.list;
+        apt update;
+        apt install -y unityhub'
+
+    - curtin in-target --target=/target -- bash -c 'set -e;
+        curl -fsS https://www.pgadmin.org/static/packages_pgadmin_org.pub | gpg --dearmor -o /usr/share/keyrings/packages-pgadmin-org.gpg;
+        echo "deb [signed-by=/usr/share/keyrings/packages-pgadmin-org.gpg] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main" > /etc/apt/sources.list.d/pgadmin4.list;
+        apt update;
+        apt install -y pgadmin4-desktop'
+
+    - curtin in-target --target=/target -- bash -c 'set -e;
+        cd /home/student;
+        wget -q https://repo.anaconda.com/archive/Anaconda3-2023.09-0-Linux-x86_64.sh;
+        bash Anaconda3-2023.09-0-Linux-x86_64.sh -b -p /home/student/anaconda3;
+        echo "export PATH=/home/student/anaconda3/bin:\$PATH" >> /home/student/.bashrc;
+        chown -R student:student /home/student/anaconda3 /home/student/Anaconda3-2023.09-0-Linux-x86_64.sh'
+
+    - curtin in-target --target=/target -- bash -c 'set -e;
+        printf "[daemon]\nAutomaticLoginEnable=true\nAutomaticLogin=student\n" > /etc/gdm3/custom.conf'
+
+    - curtin in-target --target=/target -- apt autoremove -y
