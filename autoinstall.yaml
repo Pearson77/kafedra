@@ -12,7 +12,7 @@ autoinstall:
   identity:
     hostname: ubuntu
     username: student
-    password: ""
+    password: "$y$j9T$gZTrPIMT664VfM1o5dQrZ.$6tlYNvxTHnkuA58E6ohh15uGlAXGnEWfogmG8sGrPL7"
 
   storage:
     layout:
