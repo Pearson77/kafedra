@@ -5,6 +5,7 @@ autoinstall:
 
   keyboard:
     layout: "us,ru"
+    variant: ","
     toggle: "grp:alt_shift_toggle"
 
   timezone: Europe/Moscow
@@ -67,20 +68,6 @@ autoinstall:
         dpkg -i packages-microsoft-prod.deb;
         apt update;
         apt install -y dotnet-sdk-10.0 aspnetcore-runtime-10.0 dotnet-runtime-10.0'
-
-    - curtin in-target --target=/target -- bash -c 'set -e;
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc;
-        chmod a+r /etc/apt/keyrings/docker.asc;
-        cat > /etc/apt/sources.list.d/docker.sources <<EOF
-Types: deb
-URIs: https://download.docker.com/linux/ubuntu
-Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
-Components: stable
-Signed-By: /etc/apt/keyrings/docker.asc
-EOF
-        apt update;
-        apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin;
-        usermod -aG docker student'
 
     - curtin in-target --target=/target -- bash -c 'set -e;
         curl -fsSL https://hub.unity3d.com/linux/keys/public | gpg --dearmor -o /etc/apt/keyrings/unityhub.gpg;
